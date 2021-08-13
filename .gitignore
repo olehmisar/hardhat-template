@@ -1,0 +1,12 @@
+# Hardhat files
+artifacts
+cache
+typechain
+client/src/abi
+
+# Tests
+coverage
+coverage.json
+
+# Lib
+node_modules
