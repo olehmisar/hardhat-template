@@ -2,7 +2,6 @@
 artifacts
 cache
 typechain
-client/src/abi
 
 # Tests
 coverage
