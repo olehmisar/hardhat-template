@@ -9,3 +9,6 @@ coverage.json
 
 # Lib
 node_modules
+
+# IDE
+.vscode
