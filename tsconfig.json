@@ -13,6 +13,6 @@
     "sourceMap": true,
     "resolveJsonModule": true
   },
-  "include": ["./deploy", "./test", "./scripts", "./typechain"],
+  "include": ["./deploy", "./test", "./shared", "./scripts", "./typechain"],
   "files": ["./hardhat.config.ts"]
 }
