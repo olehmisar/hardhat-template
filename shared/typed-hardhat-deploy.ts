@@ -7,7 +7,9 @@ type _Factories0 = {
 };
 type Factories = Pick<
   _Factories0,
-  { [key in keyof _Factories0]: _Factories0[key] extends ethers.ContractFactory ? key : never }[keyof _Factories0]
+  {
+    [key in keyof _Factories0]: _Factories0[key] extends ethers.ContractFactory ? key : never;
+  }[keyof _Factories0]
 >;
 interface TypedDeployOptions<F extends ethers.ContractFactory> extends DeployOptions {
   args: Parameters<F['deploy']>;
