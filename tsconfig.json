@@ -9,8 +9,8 @@
     "noImplicitThis": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
-  "include": ["./deploy", "./test", "./shared", "./scripts", "./typechain"],
-  "files": ["./hardhat.config.ts"]
+  "include": ["."]
 }
