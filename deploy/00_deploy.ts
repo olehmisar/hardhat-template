@@ -1,8 +1,8 @@
 import { DeployFunction } from 'hardhat-deploy/types';
-import { typedDeploy } from '../shared/typed-hardhat-deploy';
+import { typedDeployments } from '../shared/typed-hardhat-deploy';
 
-const deploy: DeployFunction = async ({ deployments, getNamedAccounts }) => {
-  const deploy = typedDeploy(deployments.deploy);
+const deploy: DeployFunction = async ({ deployments: d, getNamedAccounts }) => {
+  const { deploy } = typedDeployments(d);
   const { deployer } = await getNamedAccounts();
 };
 
