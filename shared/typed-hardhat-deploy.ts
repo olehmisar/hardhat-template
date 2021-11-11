@@ -42,7 +42,7 @@ export function typedDeployments<N extends Record<string, keyof Factories>>(
   return deployments as TypedDeployments<N>;
 }
 
-type _Typechain = typeof import('../typechain');
+type _Typechain = typeof import('../typechain-types');
 type _Factories0 = {
   [key in keyof _Typechain as key extends `${infer N}__factory` ? N : never]: InstanceType<_Typechain[key]>;
 };
