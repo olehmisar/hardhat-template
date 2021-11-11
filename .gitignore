@@ -1,7 +1,7 @@
 # Hardhat files
 artifacts
 cache
-typechain
+typechain-types
 
 # Tests
 coverage
