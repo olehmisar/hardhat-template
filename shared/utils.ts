@@ -1,8 +1,16 @@
-import { ethers } from 'hardhat';
+import hre, { ethers } from 'hardhat';
 
 export async function getSignersWithAddresses() {
   const signers = await ethers.getSigners();
   return signers.map((signer) => [signer, signer.address] as const);
+}
+
+export async function impersonateSigner(address: string) {
+  await hre.network.provider.request({
+    method: 'hardhat_impersonateAccount',
+    params: [address],
+  });
+  return await ethers.getSigner(address);
 }
 
 export async function getBlockTimestamp() {
