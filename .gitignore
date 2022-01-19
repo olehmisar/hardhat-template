@@ -15,3 +15,6 @@ node_modules
 
 # Env
 env.ts
+
+# Misc
+.DS_Store
