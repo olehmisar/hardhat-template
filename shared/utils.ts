@@ -1,24 +1,19 @@
-import hre, { ethers } from 'hardhat';
-
-export async function getSignersWithAddresses() {
-  const signers = await ethers.getSigners();
-  return signers.map((signer) => [signer, signer.address] as const);
-}
+import hre, { ethers } from "hardhat";
 
 export async function impersonateSigner(address: string) {
   await hre.network.provider.request({
-    method: 'hardhat_impersonateAccount',
+    method: "hardhat_impersonateAccount",
     params: [address],
   });
   return await ethers.getSigner(address);
 }
 
 export async function getBlockTimestamp() {
-  return (await ethers.provider.getBlock('latest')).timestamp;
+  return (await ethers.provider.getBlock("latest")).timestamp;
 }
 
 export async function evmIncreaseTime(offset: number) {
-  await ethers.provider.send('evm_mine', [(await getBlockTimestamp()) + offset]);
+  await ethers.provider.send("evm_mine", [(await getBlockTimestamp()) + offset]);
 }
 
 const snapshots: string[] = [];
@@ -27,23 +22,23 @@ const snapshots: string[] = [];
  */
 export function snapshottedBeforeEach(fn: () => Promise<void>) {
   before(async () => {
-    snapshots.push(await ethers.provider.send('evm_snapshot', []));
+    snapshots.push(await ethers.provider.send("evm_snapshot", []));
     await fn();
   });
 
   beforeEach(async () => {
-    snapshots.push(await ethers.provider.send('evm_snapshot', []));
+    snapshots.push(await ethers.provider.send("evm_snapshot", []));
   });
 
   afterEach(async () => {
-    if (!(await ethers.provider.send('evm_revert', [snapshots.pop()]))) {
-      throw new Error('evm_revert failed');
+    if (!(await ethers.provider.send("evm_revert", [snapshots.pop()]))) {
+      throw new Error("evm_revert failed");
     }
   });
 
   after(async () => {
-    if (!(await ethers.provider.send('evm_revert', [snapshots.pop()]))) {
-      throw new Error('evm_revert failed');
+    if (!(await ethers.provider.send("evm_revert", [snapshots.pop()]))) {
+      throw new Error("evm_revert failed");
     }
   });
 }
