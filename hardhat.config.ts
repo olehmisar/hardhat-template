@@ -1,9 +1,6 @@
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
+import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-deploy";
 import { HardhatUserConfig } from "hardhat/config";
-import "solidity-coverage";
 
 const config: HardhatUserConfig = {
   solidity: {

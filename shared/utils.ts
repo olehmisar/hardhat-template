@@ -1,44 +1,25 @@
-import hre, { ethers } from "hardhat";
+import helpers from "@nomicfoundation/hardhat-network-helpers";
+import { assert } from "ts-essentials";
 
-export async function impersonateSigner(address: string) {
-  await hre.network.provider.request({
-    method: "hardhat_impersonateAccount",
-    params: [address],
-  });
-  return await ethers.getSigner(address);
-}
-
-export async function getBlockTimestamp() {
-  return (await ethers.provider.getBlock("latest")).timestamp;
-}
-
-export async function evmIncreaseTime(offset: number) {
-  await ethers.provider.send("evm_mine", [(await getBlockTimestamp()) + offset]);
-}
-
-const snapshots: string[] = [];
+const snapshots: helpers.SnapshotRestorer[] = [];
 /**
  * Runs `fn` once, saves EVM state and restores it before each tests.
  */
 export function snapshottedBeforeEach(fn: () => Promise<void>) {
   before(async () => {
-    snapshots.push(await ethers.provider.send("evm_snapshot", []));
+    snapshots.push(await helpers.takeSnapshot());
     await fn();
   });
 
   beforeEach(async () => {
-    snapshots.push(await ethers.provider.send("evm_snapshot", []));
+    snapshots.push(await helpers.takeSnapshot());
   });
 
-  afterEach(async () => {
-    if (!(await ethers.provider.send("evm_revert", [snapshots.pop()]))) {
-      throw new Error("evm_revert failed");
-    }
-  });
-
-  after(async () => {
-    if (!(await ethers.provider.send("evm_revert", [snapshots.pop()]))) {
-      throw new Error("evm_revert failed");
-    }
-  });
+  async function restoreLatestSnapshot() {
+    const snapshot = snapshots.pop();
+    assert(snapshot, "no snapshot");
+    snapshot.restore();
+  }
+  afterEach(restoreLatestSnapshot);
+  after(restoreLatestSnapshot);
 }
