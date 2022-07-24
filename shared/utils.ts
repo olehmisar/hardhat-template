@@ -1,4 +1,4 @@
-import helpers from "@nomicfoundation/hardhat-network-helpers";
+import * as helpers from "@nomicfoundation/hardhat-network-helpers";
 import { assert } from "ts-essentials";
 
 const snapshots: helpers.SnapshotRestorer[] = [];

@@ -1,6 +1,7 @@
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-deploy";
 import { HardhatUserConfig } from "hardhat/config";
+import "./shared/typed-hardhat-deploy";
 
 const config: HardhatUserConfig = {
   solidity: {
