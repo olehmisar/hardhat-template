@@ -14,7 +14,7 @@ node_modules
 .vscode
 
 # Env
-env.ts
+.env
 
 # Misc
 .DS_Store
