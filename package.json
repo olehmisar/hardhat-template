@@ -1,5 +1,10 @@
 {
   "private": true,
+  "scripts": {
+    "compile": "hardhat compile --typecheck",
+    "test": "hardhat test --typecheck",
+    "test:no-typecheck": "hardhat test"
+  },
   "devDependencies": {
     "@ethersproject/abi": "^5.6.4",
     "@ethersproject/providers": "^5.6.8",
@@ -16,7 +21,7 @@
     "@types/node": "^18.0.1",
     "chai": "^4.3.6",
     "ethers": "^5.6.9",
-    "hardhat": "^2.9.9",
+    "hardhat": "^2.12.0",
     "hardhat-deploy": "^0.11.11",
     "hardhat-gas-reporter": "^1.0.8",
     "lodash": "^4.17.21",
