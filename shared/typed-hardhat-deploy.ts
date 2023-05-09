@@ -21,7 +21,9 @@ declare module "hardhat/types/runtime" {
     /**
      * Return `hre.getNamedAccounts` but additionally ensure that they are all valid addresses.
      */
-    safeGetNamedAccounts: <N extends Record<string, true>>(names: N) => Promise<Record<keyof N, string>>;
+    safeGetNamedAccounts: <N extends Record<string, true>>(
+      names: N,
+    ) => Promise<Record<keyof N, string>>;
   }
 
   interface TypedHardhatDeployNames {}
@@ -39,7 +41,9 @@ async function safeGetNamedAccounts<N extends Record<string, true>>(
   const { pick } = await import("lodash");
   const addresses = await hre.getNamedAccounts();
   const namesAsArray = Object.keys(names);
-  const invalidName = namesAsArray.find((name) => !hre.ethers.utils.isAddress(addresses[name]));
+  const invalidName = namesAsArray.find(
+    (name) => !hre.ethers.utils.isAddress(addresses[name]),
+  );
   if (invalidName) {
     throw new TypeError(
       `Invalid "namedAccounts" for network ${hre.network.name}: "${invalidName}" (${addresses[invalidName]})`,
@@ -58,20 +62,32 @@ type CustomNames = OmitProperties<
 >;
 
 interface TypedDeploymentsExtension extends DeploymentsExtension {
-  deploy<N extends keyof CustomNames>(name: N, options: TypedDeployOptions<N>): Promise<DeployResult>;
-  execute<N extends keyof CustomNames, M extends keyof Contracts[CustomNames[N]]["functions"]>(
+  deploy<N extends keyof CustomNames>(
+    name: N,
+    options: TypedDeployOptions<N>,
+  ): Promise<DeployResult>;
+  execute<
+    N extends keyof CustomNames,
+    M extends keyof Contracts[CustomNames[N]]["functions"],
+  >(
     name: N,
     options: TxOptions,
     methodName: M,
     ...args: SafeParameters<Contracts[CustomNames[N]]["functions"][M]>
   ): Promise<Receipt>;
-  read<N extends keyof CustomNames, M extends keyof Contracts[CustomNames[N]]["callStatic"]>(
+  read<
+    N extends keyof CustomNames,
+    M extends keyof Contracts[CustomNames[N]]["callStatic"],
+  >(
     name: N,
     options: CallOptions,
     methodName: M,
     ...args: SafeParameters<Contracts[CustomNames[N]]["callStatic"][M]>
   ): SafeReturnType<Contracts[CustomNames[N]]["callStatic"][M]>;
-  read<N extends keyof CustomNames, M extends keyof Contracts[CustomNames[N]]["callStatic"]>(
+  read<
+    N extends keyof CustomNames,
+    M extends keyof Contracts[CustomNames[N]]["callStatic"],
+  >(
     name: N,
     methodName: M,
     ...args: SafeParameters<Contracts[CustomNames[N]]["callStatic"][M]>
@@ -81,16 +97,18 @@ interface TypedDeploymentsExtension extends DeploymentsExtension {
 
 type _Typechain = typeof import("../typechain-types");
 type _Factories0 = {
-  [key in keyof _Typechain as key extends `${infer N}__factory` ? N : never]: _Typechain[key] extends abstract new (
-    ...args: any
-  ) => any
+  [key in keyof _Typechain as key extends `${infer N}__factory`
+    ? N
+    : never]: _Typechain[key] extends abstract new (...args: any) => any
     ? InstanceType<_Typechain[key]>
     : never;
 };
 type Factories = Pick<
   _Factories0,
   {
-    [key in keyof _Factories0]: _Factories0[key] extends ethers.ContractFactory ? key : never;
+    [key in keyof _Factories0]: _Factories0[key] extends ethers.ContractFactory
+      ? key
+      : never;
   }[keyof _Factories0]
 >;
 type TypedDeployOptions<N extends keyof CustomNames> = ExpandObject<
@@ -100,7 +118,9 @@ type TypedDeployOptions<N extends keyof CustomNames> = ExpandObject<
       {
         log: boolean;
       },
-      Parameters<Factories[CustomNames[N]]["deploy"]> extends [ethers.Overrides?]
+      Parameters<Factories[CustomNames[N]]["deploy"]> extends [
+        ethers.Overrides?,
+      ]
         ? {
             args?: Parameters<Factories[CustomNames[N]]["deploy"]>;
           }
@@ -122,6 +142,10 @@ type Contracts = {
   [key in keyof Factories]: Awaited<ReturnType<Factories[key]["deploy"]>>;
 };
 
-type SafeParameters<T> = T extends (...args: any[]) => any ? Parameters<T> : never;
-type SafeReturnType<T> = T extends (...args: any[]) => any ? ReturnType<T> : never;
+type SafeParameters<T> = T extends (...args: any[]) => any
+  ? Parameters<T>
+  : never;
+type SafeReturnType<T> = T extends (...args: any[]) => any
+  ? ReturnType<T>
+  : never;
 type ExpandObject<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;

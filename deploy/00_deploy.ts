@@ -6,7 +6,10 @@ import { DeployFunction } from "hardhat-deploy/types";
 //   }
 // }
 
-const deploy: DeployFunction = async ({ typedDeployments, safeGetNamedAccounts }) => {
+const deploy: DeployFunction = async ({
+  typedDeployments,
+  safeGetNamedAccounts,
+}) => {
   const { deployer } = await safeGetNamedAccounts({ deployer: true });
 
   // await typedDeployments.deploy("USDC", {
