@@ -6,11 +6,11 @@ import "./shared/typed-hardhat-deploy";
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.17",
+    version: "0.8.23",
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200,
+        runs: 9999999999,
       },
     },
   },

@@ -4,11 +4,12 @@ import ms from "ms";
 import { assert } from "ts-essentials";
 import { z } from "zod";
 
-const snapshots: hnh.SnapshotRestorer[] = [];
 /**
  * Runs `fn` once, saves EVM state and restores it before each tests.
  */
 export function snapshottedBeforeEach(fn: () => Promise<void>) {
+  const snapshots: hnh.SnapshotRestorer[] = [];
+
   before(async () => {
     snapshots.push(await hnh.takeSnapshot());
     await fn();
@@ -25,6 +26,19 @@ export function snapshottedBeforeEach(fn: () => Promise<void>) {
   }
   afterEach(restoreLatestSnapshot);
   after(restoreLatestSnapshot);
+}
+
+/**
+ * Executes `fn`, and, after execution, reverts any changes made to
+ * the blockchain inside the `fn`.
+ */
+export async function revertAfterExecution(fn: () => Promise<unknown>) {
+  let snapshot: hnh.SnapshotRestorer = await hnh.takeSnapshot();
+  try {
+    await fn();
+  } finally {
+    await snapshot.restore();
+  }
 }
 
 export function zPrivateKey() {
