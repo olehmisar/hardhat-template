@@ -10,8 +10,13 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 9999999999,
+        runs: 999999999,
       },
+    },
+  },
+  etherscan: {
+    apiKey: {
+      sepolia: "BSFWY85F56JH998I6GBM1R4YZJTM6G5WGA",
     },
   },
   namedAccounts: {

@@ -1,4 +1,4 @@
-import type { ethers } from "ethers";
+import { ethers } from "ethers";
 import type {
   CallOptions,
   Deployment,
@@ -8,9 +8,71 @@ import type {
   Receipt,
   TxOptions,
 } from "hardhat-deploy/types";
-import { extendEnvironment } from "hardhat/config";
+import { extendEnvironment, task, types } from "hardhat/config";
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
-import type { MergeN, OmitProperties } from "ts-essentials";
+import { assert, type MergeN, type OmitProperties } from "ts-essentials";
+
+task("deploy-and-export")
+  .addParam(
+    "tags",
+    "tags passed to `hardhat deploy`",
+    undefined,
+    types.string,
+    true,
+  )
+  .addParam(
+    "gasprice",
+    "Price in wei per unit of gas",
+    undefined,
+    types.string,
+    false,
+  )
+  .setAction(async (args, hre) => {
+    const unit = "gwei";
+    assert(args.gasprice.endsWith(unit), `gasprice must end with ${unit}`);
+    const gasprice = ethers
+      .parseUnits(args.gasprice.slice(0, -unit.length), unit)
+      .toString();
+    await hre.run("deploy", {
+      tags: args.tags,
+      gasprice: gasprice,
+    });
+    await hre.run("export-all");
+  });
+
+task("export-all")
+  .setDescription("Exports all deployments' addresses and ABIs")
+  .setAction(async (_args, hre) => {
+    const fs = await import("fs");
+    const _ = await import("lodash");
+    const { default: jsonStringifyDeterministic } = await import(
+      "json-stringify-deterministic"
+    );
+
+    // Use the `export` task from `hardhat-deploy` to export all deployments.
+    // Then flatten the result to transform `chainID => networkName => info`
+    // into `chainID => info` structure.
+    const filename = "deployments.json";
+    const tmpFilename = filename + ".tmp";
+    await hre.run("export", { exportAll: tmpFilename });
+    const exports = JSON.parse(fs.readFileSync(tmpFilename).toString("utf-8"));
+    const flattenExports = Object.fromEntries(
+      Object.entries<any>(exports).map(([chainId, e]) => {
+        const flatten: any = Object.values(e)[0];
+        flatten.contracts = _.mapValues(
+          flatten.contracts,
+          ({ address }) => address,
+        );
+        return [chainId, flatten];
+      }),
+    );
+    delete flattenExports["31337"]; // ignore hardhat deployments
+    fs.writeFileSync(
+      filename,
+      jsonStringifyDeterministic(flattenExports, { space: "  " }),
+    );
+    fs.rmSync(tmpFilename);
+  });
 
 declare module "hardhat/types/runtime" {
   interface HardhatRuntimeEnvironment {
@@ -42,7 +104,7 @@ async function safeGetNamedAccounts<N extends Record<string, true>>(
   const addresses = await hre.getNamedAccounts();
   const namesAsArray = Object.keys(names);
   const invalidName = namesAsArray.find(
-    (name) => !hre.ethers.utils.isAddress(addresses[name]),
+    (name) => !hre.ethers.isAddress(addresses[name]),
   );
   if (invalidName) {
     throw new TypeError(
@@ -68,33 +130,28 @@ interface TypedDeploymentsExtension extends DeploymentsExtension {
   ): Promise<DeployResult>;
   execute<
     N extends keyof CustomNames,
-    M extends keyof Contracts[CustomNames[N]]["functions"],
+    M extends keyof Contracts[CustomNames[N]],
   >(
     name: N,
     options: TxOptions,
-    methodName: M,
-    ...args: SafeParameters<Contracts[CustomNames[N]]["functions"][M]>
+    methodName: M & string,
+    ...args: SafeParameters<Contracts[CustomNames[N]][M]>
   ): Promise<Receipt>;
-  read<
-    N extends keyof CustomNames,
-    M extends keyof Contracts[CustomNames[N]]["callStatic"],
-  >(
+  read<N extends keyof CustomNames, M extends keyof Contracts[CustomNames[N]]>(
     name: N,
     options: CallOptions,
     methodName: M,
-    ...args: SafeParameters<Contracts[CustomNames[N]]["callStatic"][M]>
-  ): SafeReturnType<Contracts[CustomNames[N]]["callStatic"][M]>;
-  read<
-    N extends keyof CustomNames,
-    M extends keyof Contracts[CustomNames[N]]["callStatic"],
-  >(
+    ...args: SafeParameters<Contracts[CustomNames[N]][M]>
+  ): SafeReturnType<Contracts[CustomNames[N]][M]>;
+  read<N extends keyof CustomNames, M extends keyof Contracts[CustomNames[N]]>(
     name: N,
     methodName: M,
-    ...args: SafeParameters<Contracts[CustomNames[N]]["callStatic"][M]>
-  ): SafeReturnType<Contracts[CustomNames[N]]["callStatic"][M]>;
+    ...args: SafeParameters<Contracts[CustomNames[N]][M]>
+  ): SafeReturnType<Contracts[CustomNames[N]][M]>;
   get<N extends keyof CustomNames>(name: N): Promise<Deployment>;
 }
 
+// @ts-ignore
 type _Typechain = typeof import("../typechain-types");
 type _Factories0 = {
   [key in keyof _Typechain as key extends `${infer N}__factory`

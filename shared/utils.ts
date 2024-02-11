@@ -55,12 +55,12 @@ export async function parseUnits(
   token: { decimals: () => Promise<number> },
   value: string,
 ) {
-  return ethers.utils.parseUnits(value, await token.decimals());
+  return ethers.parseUnits(value, await token.decimals());
 }
 
 export async function formatUnits(
   token: { decimals: () => Promise<number> },
   units: ethers.BigNumberish,
 ) {
-  return ethers.utils.formatUnits(units, await token.decimals());
+  return ethers.formatUnits(units, await token.decimals());
 }
